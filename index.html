@@ -62,6 +62,19 @@
       opacity: 0.35;
       filter: grayscale(0.7);
     }
+    .team-tag[data-team-filter="all"] {
+      background: #fff;
+      color: #475569;
+      border-color: #cbd5e1;
+    }
+    .team-tag[data-team-filter="all"].is-active {
+      background: #0f172a;
+      color: #fff;
+      border-color: #0f172a;
+    }
+    .team-tag.is-active:not([data-team-filter="all"]) {
+      box-shadow: 0 0 0 2px #fff, 0 0 0 3px currentColor;
+    }
     /* Custom scrollbar */
     ::-webkit-scrollbar {
       height: 8px;
@@ -128,13 +141,14 @@
       <!-- Barra de Legenda de Times -->
       <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2 text-[11px] font-medium text-slate-600">
         <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Equipes:</span>
-        <button onclick="filterByTeam('editorial')" class="team-tag px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition">Editorial</button>
-        <button onclick="filterByTeam('audiovisual')" class="team-tag px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition">Audiovisual</button>
-        <button onclick="filterByTeam('nde')" class="team-tag px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition">NDE</button>
-        <button onclick="filterByTeam('interacoes')" class="team-tag px-2.5 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 transition">Interações Digitais</button>
-        <button onclick="filterByTeam('terceiros')" class="team-tag px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition">Terceiros</button>
-        <button onclick="filterByTeam('qualidade')" class="team-tag px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition">Qualidade</button>
-        <button onclick="filterByTeam('engenharia')" class="team-tag px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 transition">Engenharia</button>
+        <button type="button" onclick="filterByTeam('all')" data-team-filter="all" class="team-tag is-active px-2.5 py-1 rounded-full border hover:bg-slate-800 hover:text-white hover:border-slate-800 transition">Todas as equipes</button>
+        <button type="button" onclick="filterByTeam('editorial')" data-team-filter="editorial" class="team-tag px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition">Editorial</button>
+        <button type="button" onclick="filterByTeam('audiovisual')" data-team-filter="audiovisual" class="team-tag px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition">Audiovisual</button>
+        <button type="button" onclick="filterByTeam('nde')" data-team-filter="nde" class="team-tag px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition">NDE</button>
+        <button type="button" onclick="filterByTeam('interacoes')" data-team-filter="interacoes" class="team-tag px-2.5 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 transition">Interações Digitais</button>
+        <button type="button" onclick="filterByTeam('terceiros')" data-team-filter="terceiros" class="team-tag px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition">Terceiros</button>
+        <button type="button" onclick="filterByTeam('qualidade')" data-team-filter="qualidade" class="team-tag px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition">Qualidade</button>
+        <button type="button" onclick="filterByTeam('engenharia')" data-team-filter="engenharia" class="team-tag px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 transition">Engenharia</button>
         <span class="ml-auto text-slate-400 italic hidden lg:inline">Clique em qualquer etapa para ver detalhes e entregáveis</span>
       </div>
     </div>
@@ -948,7 +962,13 @@
     function filterByTeam(team) {
       const cards = document.querySelectorAll('.node-card');
       const select = document.getElementById('teamFilter');
-      select.value = team;
+      if ([...select.options].some(option => option.value === team)) {
+        select.value = team;
+      }
+
+      document.querySelectorAll('.team-tag').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.teamFilter === team);
+      });
 
       if (team === 'all') {
         cards.forEach(card => {
