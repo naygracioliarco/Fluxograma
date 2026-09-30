@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluxo de Produção: Como Nasce o Livro Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              editorial: '#2563eb',
+              audiovisual: '#9333ea',
+              nde: '#059669',
+              interacoes: '#ea580c',
+              terceiros: '#dc2626',
+              qualidade: '#ca8a04',
+              engenharia: '#475569',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .flow-connector {
+      position: relative;
+    }
+    .flow-connector::after {
+      content: '';
+      position: absolute;
+      background: #cbd5e1;
+      z-index: 0;
+    }
+    .badge-pulse {
+      animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    }
+    .node-card {
+      transition: all 0.25s ease-out;
+    }
+    .node-card:hover {
+      transform: translateY(-3px);
+    }
+    .node-active-highlight {
+      box-shadow: 0 0 0 3px #3b82f6, 0 10px 25px -5px rgba(59, 130, 246, 0.25) !important;
+    }
+    .node-dimmed {
+      opacity: 0.35;
+      filter: grayscale(0.7);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      height: 8px;
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm backdrop-blur-md bg-white/90">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 font-bold text-sm">
+              LD
+            </div>
+            <div>
+              <h1 class="text-lg font-bold text-slate-900 leading-tight">Como Nasce o Livro Digital</h1>
+              <p class="text-xs text-slate-500 font-medium">Do fechamento editorial à publicação na Geekie One</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seletor de Tipo de Livro & Visualização -->
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Filtro de Modalidade -->
+          <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-semibold">
+            <button id="btnAll" onclick="setBookMode('all')" class="px-3 py-1.5 rounded-lg transition-all bg-white text-slate-800 shadow-sm">
+              Visão Completa
+            </button>
+            <button id="btnAtualizacao" onclick="setBookMode('atualizacao')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Atualização
+            </button>
+            <button id="btnReformulado" onclick="setBookMode('reformulado')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-violet-500"></span> Reformulado
+            </button>
+          </div>
+
+          <!-- Filtro por Área -->
+          <select id="teamFilter" onchange="filterByTeam(this.value)" class="text-xs font-semibold bg-white border border-slate-200 text-slate-700 py-1.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="all">Todas as Equipes</option>
+            <option value="editorial">Editorial</option>
+            <option value="audiovisual">Audiovisual</option>
+            <option value="nde">NDE</option>
+            <option value="interacoes">Interações Digitais</option>
+            <option value="terceiros">Terceiros (Cotejo/Input)</option>
+            <option value="qualidade">Qualidade & Engenharia</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Barra de Legenda de Times -->
+      <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2 text-[11px] font-medium text-slate-600">
+        <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Equipes:</span>
+        <button onclick="filterByTeam('editorial')" class="team-tag px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition">Editorial</button>
+        <button onclick="filterByTeam('audiovisual')" class="team-tag px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition">Audiovisual</button>
+        <button onclick="filterByTeam('nde')" class="team-tag px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition">NDE</button>
+        <button onclick="filterByTeam('interacoes')" class="team-tag px-2.5 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 transition">Interações Digitais</button>
+        <button onclick="filterByTeam('terceiros')" class="team-tag px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition">Terceiros</button>
+        <button onclick="filterByTeam('qualidade')" class="team-tag px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition">Qualidade</button>
+        <button onclick="filterByTeam('engenharia')" class="team-tag px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 transition">Engenharia</button>
+        <span class="ml-auto text-slate-400 italic hidden lg:inline">Clique em qualquer etapa para ver detalhes e entregáveis</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Card de Alerta/Contexto Didático -->
+    <div id="modeBanner" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-start gap-3.5">
+        <div class="p-2.5 bg-blue-600 text-white rounded-xl shadow-sm shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div>
+          <h2 id="bannerTitle" class="font-bold text-slate-900 text-sm sm:text-base">Fluxo Geral de Criação do Livro Digital</h2>
+          <p id="bannerDesc" class="text-xs sm:text-sm text-slate-600 mt-0.5">
+            O fluxo conecta 7 frentes de trabalho coordenadas através de planilhas de controle, pastas e aprovações até a disponibilização final na plataforma.
+          </p>
+        </div>
+      </div>
+      <div class="shrink-0 flex items-center gap-2">
+        <span class="text-xs font-semibold px-3 py-1 bg-white rounded-lg border border-slate-200 text-slate-600 shadow-sm flex items-center gap-1.5">
+          <span class="inline-block w-2 h-2 rounded-full bg-green-500"></span> 5 Fases Principais
+        </span>
+      </div>
+    </div>
+
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-blue-600 text-white text-xs font-bold flex items-center justify-center shadow">1</span>
+          <h3 class="font-bold text-slate-800 text-base">Fase 1: Fechamento Editorial & Insumos Base</h3>
+        </div>
+        <span class="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">Pré-requisito Obrigatório</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Ponto de Partida -->
+        <div class="node-card bg-white p-4 rounded-2xl border-2 border-slate-300 shadow-sm hover:shadow-md cursor-pointer relative"
+             data-team="editorial" onclick="openModal('diagramacao')">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700">Origem</span>
+            <span class="text-slate-400 text-xs">🏁 Início</span>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm">Capítulo & Diagramação Final</h4>
+          <p class="text-xs text-slate-500 mt-1">O capítulo é escrito e passa por todas as etapas tradicionais até a conclusão da diagramação final.</p>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 text-[11px] font-semibold text-slate-600 flex items-center gap-1">
+            <span>📄 PDF diagramado pronto</span>
+          </div>
+        </div>
+
+        <!-- Tarefa 1 Editorial -->
+        <div class="node-card bg-white p-4 rounded-2xl border-l-4 border-l-brand-editorial border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer relative"
+             data-team="editorial" onclick="openModal('questoesBonus')">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700">Editorial</span>
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm">Docs de Questões Bônus & Extras</h4>
+          <p class="text-xs text-slate-500 mt-1">Preenchimento do Google Docs com as questões complementares que existirão exclusivamente no digital.</p>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 text-[11px] font-semibold text-blue-600 flex items-center gap-1">
+            <span>📝 Docs com gabaritos</span>
+          </div>
+        </div>
+
+        <!-- Tarefa 2 Editorial -->
+        <div class="node-card bg-white p-4 rounded-2xl border-l-4 border-l-brand-editorial border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer relative"
+             data-team="editorial" onclick="openModal('linksPublitas')">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700">Editorial</span>
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm">Links Publitas na Planilha</h4>
+          <p class="text-xs text-slate-500 mt-1">Disponibilização do link do Publitas do Aluno e do Publitas do Docente na planilha de controle.</p>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 text-[11px] font-semibold text-blue-600 flex items-center gap-1">
+            <span>🔗 2 Links (Aluno / Docente)</span>
+          </div>
+        </div>
+
+        <!-- Tarefa 3 Editorial -->
+        <div class="node-card bg-white p-4 rounded-2xl border-l-4 border-l-brand-editorial border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer relative"
+             data-team="editorial" onclick="openModal('briefingAudios')">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700">Editorial</span>
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm">Briefing dos Áudios</h4>
+          <p class="text-xs text-slate-500 mt-1">Elaboração do roteiro e especificações para a narração/áudios do capítulo.</p>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 text-[11px] font-semibold text-blue-600 flex items-center gap-1">
+            <span>🎙️ Roteiro enviado ao Audiovisual</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shadow">2</span>
+          <h3 class="font-bold text-slate-800 text-base">Fase 2: Produção Audiovisual & Curadoria Pedagógica (NDE)</h3>
+        </div>
+        <span class="text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-full">Execução Simultânea</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        
+        <!-- Trilha Audiovisual com Loop de Ajustes -->
+        <div class="bg-purple-50/50 border border-purple-200/80 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-purple-900 uppercase tracking-wide flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-purple-600"></span> Trilha: Audiovisual & Validação
+            </span>
+            <span class="text-[11px] text-purple-600 font-medium">Com ciclo de revisão</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="node-card bg-white p-3.5 rounded-xl border-l-4 border-l-brand-audiovisual border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer"
+                 data-team="audiovisual" onclick="openModal('producaoAudio')">
+              <span class="text-[10px] font-bold text-purple-700 uppercase">Audiovisual</span>
+              <h5 class="font-bold text-slate-900 text-xs sm:text-sm mt-0.5">Produção dos Áudios</h5>
+              <p class="text-xs text-slate-500 mt-1">Gravação, edição e inserção dos links dos áudios na planilha.</p>
+              <div class="mt-2 text-[11px] text-purple-700 font-medium">🎧 Links na planilha</div>
+            </div>
+
+            <div class="node-card bg-white p-3.5 rounded-xl border-l-4 border-l-brand-editorial border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer"
+                 data-team="editorial" onclick="openModal('validacaoAudios')">
+              <span class="text-[10px] font-bold text-blue-700 uppercase">Editorial</span>
+              <h5 class="font-bold text-slate-900 text-xs sm:text-sm mt-0.5">Validação dos Áudios</h5>
+              <p class="text-xs text-slate-500 mt-1">Editorial aprova ou aponta ajustes. Se houver retorno, audiovisual corrige.</p>
+              <div class="mt-2 text-[11px] text-amber-600 font-semibold flex items-center gap-1">
+                <span>🔄 Loop de ajustes se necessário</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trilha NDE (Núcleo Docente Estruturante / Pedagógico) -->
+        <div class="bg-emerald-50/50 border border-emerald-200/80 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-900 uppercase tracking-wide flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span> Trilha: NDE (Pedagógico / Didático)
+            </span>
+            <span class="text-[11px] text-emerald-600 font-medium">Gamificação & Adaptação</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="node-card bg-white p-3.5 rounded-xl border-l-4 border-l-brand-nde border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer"
+                 data-team="nde" onclick="openModal('kahoot')">
+              <span class="text-[10px] font-bold text-emerald-700 uppercase">NDE</span>
+              <h5 class="font-bold text-slate-900 text-xs sm:text-sm mt-0.5">Criação dos Kahoots</h5>
+              <p class="text-xs text-slate-500 mt-1">Criação dos desafios no Kahoot (Aluno e Docente) e inclusão dos links na planilha.</p>
+              <div class="mt-2 text-[11px] text-emerald-700 font-medium">🎮 Links Kahoot Aluno & Prof</div>
+            </div>
+
+            <div class="node-card bg-white p-3.5 rounded-xl border-l-4 border-l-brand-nde border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer"
+                 data-team="nde" onclick="openModal('analisePdf')">
+              <span class="text-[10px] font-bold text-emerald-700 uppercase">NDE</span>
+              <h5 class="font-bold text-slate-900 text-xs sm:text-sm mt-0.5">Anotação no PDF do Aluno</h5>
+              <p class="text-xs text-slate-500 mt-1">Mapeia imagens que exigem intervenção visual e questões que necessitam de adaptação digital.</p>
+              <div class="mt-2 text-[11px] text-emerald-700 font-medium">🔍 Parecer de adaptação</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-orange-600 text-white text-xs font-bold flex items-center justify-center shadow">3</span>
+          <h3 class="font-bold text-slate-800 text-base">Fase 3: Interações Digitais (Designers & Analistas)</h3>
+        </div>
+        <span class="text-xs font-medium text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-full">Gate de Entrada</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Designers de Interações -->
+        <div class="node-card bg-white p-4 rounded-2xl border-l-4 border-l-brand-interacoes border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer"
+             data-team="interacoes" onclick="openModal('designers')">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-orange-50 text-orange-700">Interações Digitais • Designers</span>
+            <span class="text-xs text-orange-500 font-semibold">Passo 1</span>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm">Tratamento de Imagens & Recursos Visuais</h4>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            As designers recebem os apontamentos do NDE, produzem/ajustam as imagens necessárias, sobem os arquivos finais na pasta designada e disponibilizam o link da pasta na planilha.
+          </p>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span class="font-mono text-[11px] text-orange-600">📁 Link da pasta com assets</span>
+            <span class="text-[11px] font-medium text-slate-400">Design Concluído</span>
+          </div>
+        </div>
+
+        <!-- Analistas de Interações -->
+        <div class="node-card bg-white p-4 rounded-2xl border-l-4 border-l-brand-interacoes border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer"
+             data-team="interacoes" onclick="openModal('analistasGate')">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-orange-50 text-orange-700">Interações Digitais • Analistas</span>
+            <span class="text-xs text-orange-500 font-semibold">Passo 2</span>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm">Auditoria da Planilha (Gate para Terceiros)</h4>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Os analistas checam se todos os pré-requisitos estão 100% preenchidos na planilha: links de Publitas, Kahoots, áudios validados, docs de bônus e link das imagens.
+          </p>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span class="font-mono text-[11px] text-emerald-600 font-semibold">✓ Liberação p/ Terceiros</span>
+            <span class="text-[11px] font-medium text-slate-400">Checklist Completo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-rose-600 text-white text-xs font-bold flex items-center justify-center shadow">4</span>
+          <div>
+            <h3 class="font-bold text-slate-800 text-base">Fase 4: Terceiros (Cotejo e Input Geekie One / CMS)</h3>
+            <p class="text-xs text-slate-500 font-normal">A ordem das etapas varia conforme o tipo de livro:</p>
+          </div>
+        </div>
+        <div class="hidden sm:flex items-center gap-2">
+          <span class="text-[11px] px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-semibold">Atualização: Cotejo ANTES</span>
+          <span class="text-[11px] px-2 py-0.5 bg-violet-100 text-violet-800 rounded font-semibold">Reformulado: Cotejo DEPOIS</span>
+        </div>
+      </div>
+
+      <!-- Container com Bifurcação Visual -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        
+        <!-- Ramificação A: Atualização -->
+        <div id="branchAtualizacao" class="bg-gradient-to-b from-emerald-50/60 to-white border-2 border-emerald-300/80 rounded-2xl p-4 space-y-3 transition-all">
+          <div class="flex items-center justify-between pb-2 border-b border-emerald-200">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+              <h4 class="font-bold text-emerald-950 text-sm">Caminho A: Livro em Atualização</h4>
+            </div>
+            <span class="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">Cotejo Prévio</span>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Passo 1: Cotejo -->
+            <div class="node-card bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm cursor-pointer"
+                 data-team="terceiros" onclick="openModal('cotejoPre')">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-rose-700 uppercase">1. Cotejo Inicial (Terceiros)</span>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Antes do Input</span>
+              </div>
+              <h5 class="font-bold text-slate-900 text-xs sm:text-sm mt-1">Comparação Impresso × Digital</h5>
+              <p class="text-xs text-slate-600 mt-1">
+                Comparam o impresso com a versão digital anterior, apontando divergências e necessidades de atualização.
+              </p>
+            </div>
+
+            <!-- Conector seta -->
+            <div class="text-center text-slate-400 text-xs font-bold">↓ em seguida</div>
+
+            <!-- Passo 2: Input -->
+            <div class="node-card bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm cursor-pointer"
+                 data-team="terceiros" onclick="openModal('inputTerceiros')">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-rose-700 uppercase">2. Input & Cadastro (Terceiros)</span>
+                <span class="text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">Geekie One & CMS</span>
+              </div>
+              <h5 class="font-bold text-slate-900 text-xs sm:text-sm mt-1">Inserção de Conteúdo & Links Finais</h5>
+              <p class="text-xs text-slate-600 mt-1">
+                Outros terceiros executam o input na plataforma e disponibilizam o <strong>Link do Capítulo na Geekie One</strong> e o <strong>Link do CMS</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ramificação B: Reformulado -->
+        <div id="branchReformulado" class="bg-gradient-to-b from-violet-50/60 to-white border-2 border-violet-300/80 rounded-2xl p-4 space-y-3 transition-all">
+          <div class="flex items-center justify-between pb-2 border-b border-violet-200">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-violet-500"></span>
+              <h4 class="font-bold text-violet-950 text-sm">Caminho B: Livro Reformulado</h4>
+            </div>
+            <span class="text-[11px] bg-violet-100 text-violet-800 font-bold px-2 py-0.5 rounded">Cotejo Pós-Input</span>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Passo 1: Input Direto -->
+            <div class="node-card bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm cursor-pointer"
+                 data-team="terceiros" onclick="openModal('inputTerceiros')">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-rose-700 uppercase">1. Input Inicial (Terceiros)</span>
+                <span class="text-[11px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded">Novo Conteúdo</span>
+              </div>
+              <h5 class="font-bold text-slate-900 text-xs sm:text-sm mt-1">Input Completo no Geekie One & CMS</h5>
+              <p class="text-xs text-slate-600 mt-1">
+                Como a obra foi totalmente reformulada, o conteúdo é inserido do zero pelos terceiros, gerando os links do CMS e Geekie One.
+              </p>
+            </div>
+
+            <!-- Conector seta -->
+            <div class="text-center text-slate-400 text-xs font-bold">↓ em seguida</div>
+
+            <!-- Passo 2: Cotejo pós-input -->
+            <div class="node-card bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm cursor-pointer"
+                 data-team="terceiros" onclick="openModal('cotejoPos')">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-rose-700 uppercase">2. Cotejo Pós-Input (Terceiros)</span>
+                <span class="text-[11px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded">Auditoria Pós-Criação</span>
+              </div>
+              <h5 class="font-bold text-slate-900 text-xs sm:text-sm mt-1">Conferência Minuciosa</h5>
+              <p class="text-xs text-slate-600 mt-1">
+                Os terceiros verificam se tudo o que foi inputado reflete perfeitamente o novo livro impresso diagramado.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Banner de Saída da Fase 4 -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <span class="font-semibold text-slate-700 flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          Entregável final dos terceiros:
+        </span>
+        <div class="flex gap-2">
+          <span class="font-mono bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200">🔗 Link Capítulo Geekie One</span>
+          <span class="font-mono bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200">🛠️ Link do CMS</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shadow">5</span>
+          <h3 class="font-bold text-slate-800 text-base">Fase 5: Homologação, Qualidade & Engenharia</h3>
+        </div>
+        <span class="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">Reta Final & Go-Live</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        
+        <!-- Retorno Interações Digitais -->
+        <div class="node-card bg-white p-4 rounded-2xl border-l-4 border-l-brand-interacoes border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer"
+             data-team="interacoes" onclick="openModal('validacaoInteracoes')">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-orange-50 text-orange-700">Interações Digitais</span>
+            <span class="text-slate-400 text-xs">Validação 1</span>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm">Validação do Input</h4>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            O time de Interações Digitais retorna ao processo para conferir o trabalho entregue pelos terceiros no CMS e Geekie One.
+          </p>
+          <div class="mt-3 pt-2 text-[11px] font-semibold text-orange-600">
+            🔍 Homologação inicial
+          </div>
+        </div>
+
+        <!-- Equipe de Qualidade com Decisão de Ajuste -->
+        <div class="node-card bg-white p-4 rounded-2xl border-l-4 border-l-brand-qualidade border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer relative"
+             data-team="qualidade" onclick="openModal('auditoriaQualidade')">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-amber-700">Qualidade</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm">Auditoria Final de Qualidade</h4>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Equipe verifica rigorosamente todos os detalhes.
+          </p>
+          <div class="mt-2 text-[11px] bg-slate-50 p-2 rounded-lg border border-slate-200 space-y-1">
+            <div class="text-rose-600 font-semibold flex items-center gap-1">
+              <span>⚠️ Com ajustes:</span> <span class="font-normal text-slate-600">Interações Digitais corrige</span>
+            </div>
+            <div class="text-emerald-700 font-semibold flex items-center gap-1">
+              <span>✓ Sem ajustes:</span> <span class="font-normal text-slate-600">Aprova para Engenharia</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila de Espera / Cadastro -->
+        <div class="node-card bg-white p-4 rounded-2xl border-l-4 border-l-brand-engenharia border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer"
+             data-team="engenharia" onclick="openModal('filaCadastro')">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700">Engenharia</span>
+            <span class="text-slate-400 text-xs">Fila</span>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm">Capítulo Aguarda Cadastro</h4>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Após aprovação irrestrita da Qualidade, o capítulo fica armazenado e pronto para o ciclo de deploy em lote.
+          </p>
+          <div class="mt-3 pt-2 text-[11px] font-semibold text-slate-500">
+            ⏳ Aguarda fechamento do lote
+          </div>
+        </div>
+
+        <!-- Deploy em Massa pela Engenharia -->
+        <div class="node-card bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 rounded-2xl shadow-md hover:shadow-lg cursor-pointer"
+             data-team="engenharia" onclick="openModal('cadastroMassa')">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-700 text-slate-200">Engenharia</span>
+            <span class="text-emerald-400 text-xs">🚀 Publicação</span>
+          </div>
+          <h4 class="font-bold text-white text-sm">Cadastro em Massa</h4>
+          <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+            A equipe de Engenharia executa a ingestão e publicação automatizada em massa na plataforma de produção.
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-700/80 text-[11px] font-bold text-emerald-400 flex items-center gap-1">
+            <span>🎉 Livro Digital no Ar!</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 mb-4 border-b border-slate-100">
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">Matriz de Entregáveis & Artefatos Digitais</h3>
+          <p class="text-xs text-slate-500">Resumo centralizado dos links, documentos e artefatos de cada área</p>
+        </div>
+        <span class="text-xs font-mono text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">Total de 8 Ativos Chave</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="text-slate-400 border-b border-slate-100 font-semibold">
+              <th class="pb-2.5">Equipe</th>
+              <th class="pb-2.5">Artefato / Entrega</th>
+              <th class="pb-2.5">Destino / Ferramenta</th>
+              <th class="pb-2.5">Impacto no Fluxo</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+            <tr>
+              <td class="py-2.5 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-600"></span> Editorial</td>
+              <td>Questões Bônus e Extras</td>
+              <td class="font-mono text-[11px]">Google Docs</td>
+              <td>Enriquecimento pedagógico do digital</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-600"></span> Editorial</td>
+              <td>Links Publitas (Aluno e Docente)</td>
+              <td class="font-mono text-[11px]">Planilha Central</td>
+              <td>Visualização espelho do livro impresso</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-600"></span> Audiovisual</td>
+              <td>Áudios do Capítulo (validados)</td>
+              <td class="font-mono text-[11px]">Planilha Central (Links)</td>
+              <td>Acessibilidade e audiodescrição/narração</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-600"></span> NDE</td>
+              <td>Links Kahoot (Aluno e Docente)</td>
+              <td class="font-mono text-[11px]">Planilha Central</td>
+              <td>Gamificação e engajamento em sala de aula</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-600"></span> NDE</td>
+              <td>Anotações no PDF (Imagens e Questões)</td>
+              <td class="font-mono text-[11px]">PDF Anotado</td>
+              <td>Guia para Designers e Terceiros</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-orange-600"></span> Interações Digitais</td>
+              <td>Imagens tratadas + Link da pasta</td>
+              <td class="font-mono text-[11px]">Drive / Planilha</td>
+              <td>Assets preparados p/ responsividade</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-rose-600"></span> Terceiros</td>
+              <td>Link Geekie One + Link CMS</td>
+              <td class="font-mono text-[11px]">CMS / Geekie One</td>
+              <td>Estrutura viva do livro para validação</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-700"></span> Engenharia</td>
+              <td>Cadastro em Massa</td>
+              <td class="font-mono text-[11px]">Ambiente Produtivo</td>
+              <td>Disponibilização oficial para escolas e alunos</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span>Mapeamento do Processo Produtivo do Livro Digital</span>
+      <span class="text-slate-400">Pressione qualquer card para expandir detalhes e diretrizes</span>
+    </div>
+  </footer>
+
+  <!-- Modal Detalhado -->
+  <div id="detailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100 transform transition-all relative overflow-hidden">
+      <!-- Barra de cor no topo -->
+      <div id="modalColorBar" class="absolute top-0 left-0 right-0 h-2 bg-blue-600"></div>
+
+      <div class="flex items-start justify-between mt-1 mb-4">
+        <div>
+          <span id="modalTeamBadge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+            Editorial
+          </span>
+          <h3 id="modalTitle" class="text-lg font-bold text-slate-950 mt-1">Título da Etapa</h3>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <p id="modalDesc" class="text-sm text-slate-600 leading-relaxed mb-5">
+        Descrição completa da etapa...
+      </p>
+
+      <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 mb-5 space-y-2">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Critérios & Entregáveis:</h4>
+        <ul id="modalDeliverables" class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
+          <!-- preenchido via js -->
+        </ul>
+      </div>
+
+      <div class="flex items-center justify-end">
+        <button onclick="closeModal()" class="px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-xl hover:bg-slate-800 transition">
+          Entendido / Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dicionário de dados de cada etapa do processo
+    const stepsData = {
+      diagramacao: {
+        team: "Editorial & Design Impresso",
+        badgeClass: "bg-slate-100 text-slate-800",
+        barColor: "#475569",
+        title: "Fechamento da Diagramação Final do Capítulo",
+        desc: "O capítulo é escrito pelos autores, passa pelas revisões de texto, checagens de conteúdo, aprovação pedagógica e chega na diagramação final impressa. Este PDF finalizado é a fonte da verdade para o livro digital.",
+        deliverables: [
+          "Arquivo PDF diagramado em alta e baixa resolução",
+          "Versão do Aluno e versão do Docente homologadas",
+          "Marco zero que autoriza o início da esteira digital"
+        ]
+      },
+      questoesBonus: {
+        team: "Editorial",
+        badgeClass: "bg-blue-100 text-blue-800",
+        barColor: "#2563eb",
+        title: "Docs de Questões Bônus e Extras",
+        desc: "O time editorial organiza no Google Docs as questões que farão parte do ecossistema digital além do impresso, incluindo gabarito comentado, resoluções passo a passo e categorização correta.",
+        deliverables: [
+          "Documento Google Docs preenchido e formatado",
+          "Questões bônus catalogadas com gabarito",
+          "Link do Docs compartilhado e inserido na planilha mestra"
+        ]
+      },
+      linksPublitas: {
+        team: "Editorial",
+        badgeClass: "bg-blue-100 text-blue-800",
+        barColor: "#2563eb",
+        title: "Preenchimento dos Links Publitas",
+        desc: "Com a diagramação pronta, são geradas as publicações flipbook no Publitas para navegação visual do livro. O editorial deve preencher a planilha com os dois links indispensáveis.",
+        deliverables: [
+          "Link do Publitas do Aluno",
+          "Link do Publitas do Docente (com manuais e resoluções)",
+          "Checagem de permissões públicas/restritas dos links"
+        ]
+      },
+      briefingAudios: {
+        team: "Editorial",
+        badgeClass: "bg-blue-100 text-blue-800",
+        barColor: "#2563eb",
+        title: "Briefing dos Áudios do Capítulo",
+        desc: "O editorial faz a curadoria de trechos-chave do capítulo (como textos de abertura, boxes especiais ou exercícios orais) e elabora o briefing com instruções para os locutores.",
+        deliverables: [
+          "Texto e roteiro de locução especificados",
+          "Diretrizes de entonação, termos técnicos e pronúncia",
+          "Envio formal para a equipe de Audiovisual"
+        ]
+      },
+      producaoAudio: {
+        team: "Audiovisual",
+        badgeClass: "bg-purple-100 text-purple-800",
+        barColor: "#9333ea",
+        title: "Produção e Disponibilização dos Áudios",
+        desc: "O time de Audiovisual agenda gravação, realiza captação com locutores profissionais, faz a edição e equalização do som e sobe os arquivos na nuvem, disponibilizando os links na planilha.",
+        deliverables: [
+          "Gravação e pós-produção dos áudios finalizada",
+          "Links dos áudios inseridos na planilha de controle",
+          "Solicitação de validação enviada ao Editorial"
+        ]
+      },
+      validacaoAudios: {
+        team: "Editorial & Audiovisual",
+        badgeClass: "bg-blue-100 text-blue-800",
+        barColor: "#2563eb",
+        title: "Validação dos Áudios & Ajustes",
+        desc: "O Editorial ouve os áudios produzidos. Caso haja discrepância, corte ou pronúncia incorreta, o Audiovisual realiza as correções solicitadas até a aprovação definitiva.",
+        deliverables: [
+          "Aprovação formal do Editorial registrada",
+          "Ciclo de ajustes concluído pelo Audiovisual (se houve)",
+          "Status de áudio marcado como 'Aprovado' na planilha"
+        ]
+      },
+      kahoot: {
+        team: "NDE (Núcleo Docente Estruturante)",
+        badgeClass: "bg-emerald-100 text-emerald-800",
+        barColor: "#059669",
+        title: "Criação dos Links Kahoot",
+        desc: "O NDE cria questionários gamificados no Kahoot para potencializar as aulas com dinâmicas ativas, configurando a visão do Aluno e do Docente.",
+        deliverables: [
+          "Kahoot do Aluno criado e testado",
+          "Kahoot do Docente estruturado",
+          "Links de ambos preenchidos na planilha mestra"
+        ]
+      },
+      analisePdf: {
+        team: "NDE (Núcleo Docente Estruturante)",
+        badgeClass: "bg-emerald-100 text-emerald-800",
+        barColor: "#059669",
+        title: "Análise do PDF do Aluno & Anotações",
+        desc: "O NDE estuda detalhadamente o PDF do aluno para identificar elementos que não funcionam 'cruamente' na tela, marcando imagens que necessitam de intervenção artística e questões que precisam ser adaptadas ao formato digital interativo.",
+        deliverables: [
+          "PDF com marcações claras de intervenção em imagens",
+          "Relação de questões com adaptações recomendadas (drag-and-drop, múltipla escolha etc.)",
+          "Diretrizes passadas para as designers e terceiros"
+        ]
+      },
+      designers: {
+        team: "Interações Digitais • Designers",
+        badgeClass: "bg-orange-100 text-orange-800",
+        barColor: "#ea580c",
+        title: "Atuação das Designers em Imagens",
+        desc: "As designers analisam os apontamentos do NDE, realizam os recortes, diagramações digitais, ajustes de contraste ou montagens necessárias nas imagens, sobem os arquivos na pasta e colocam o link na planilha.",
+        deliverables: [
+          "Imagens otimizadas para web/mobile com nomes padronizados",
+          "Pasta no Google Drive organizada por capítulo",
+          "Link da pasta disponibilizado na planilha de controle"
+        ]
+      },
+      analistasGate: {
+        team: "Interações Digitais • Analistas",
+        badgeClass: "bg-orange-100 text-orange-800",
+        barColor: "#ea580c",
+        title: "Conferência da Planilha (Gate para Terceiros)",
+        desc: "Os analistas de interações digitais atuam como ponto focal de qualidade antes da terceirização: garantem que a planilha contém todos os links (Publitas, Kahoots, áudios, Docs de bônus e imagens tratadas).",
+        deliverables: [
+          "Checklist de 100% dos insumos checado",
+          "Sinal verde formal para os fornecedores terceiros iniciarem",
+          "Envio do pacote de trabalho aos terceiros"
+        ]
+      },
+      cotejoPre: {
+        team: "Terceiros (Cotejo)",
+        badgeClass: "bg-rose-100 text-rose-800",
+        barColor: "#dc2626",
+        title: "Cotejo Inicial (No caso de Livro em Atualização)",
+        desc: "Para obras existentes que estão sofrendo atualização, os terceiros realizam o cotejo ANTES do novo input: comparam o impresso novo com o que já existe no digital e apontam cada divergência a ser corrigida.",
+        deliverables: [
+          "Relatório de divergências entre impresso atual e digital anterior",
+          "Marcação precisa do que precisa ser alterado, excluído ou mantido",
+          "Liberação direcionada para a etapa de input"
+        ]
+      },
+      inputTerceiros: {
+        team: "Terceiros (Input)",
+        badgeClass: "bg-rose-100 text-rose-800",
+        barColor: "#dc2626",
+        title: "Input de Conteúdo na Geekie One & CMS",
+        desc: "Os terceiros cadastram textos, fórmulas, questões bônus, áudios, imagens e Kahoots no CMS e na plataforma Geekie One.",
+        deliverables: [
+          "Link do Capítulo montado na Geekie One",
+          "Link correspondente no CMS de produção",
+          "Planilha preenchida com os dois links gerados"
+        ]
+      },
+      cotejoPos: {
+        team: "Terceiros (Cotejo)",
+        badgeClass: "bg-rose-100 text-rose-800",
+        barColor: "#dc2626",
+        title: "Cotejo Pós-Input (No caso de Livro Reformulado)",
+        desc: "Para obras reformuladas totalmente, o input é feito primeiro. Em seguida, os terceiros de cotejo comparam o capítulo pronto no Geekie One com o impresso diagramado para garantir fidelidade 100%.",
+        deliverables: [
+          "Validação de texto, ordem de exercícios e mídias",
+          "Apontamentos de pequenos desvios ajustados imediatamente",
+          "Emissão do carimbo de cotejo concluído"
+        ]
+      },
+      validacaoInteracoes: {
+        team: "Interações Digitais",
+        badgeClass: "bg-orange-100 text-orange-800",
+        barColor: "#ea580c",
+        title: "Validação do Input pelos Analistas",
+        desc: "O time de Interações Digitais acessa os links de Geekie One e CMS deixados pelos terceiros e faz a homologação de usabilidade, navegabilidade e integridade visual.",
+        deliverables: [
+          "Auditoria dos componentes interativos",
+          "Verificação da integridade das imagens e links",
+          "Envio do capítulo para a esteira da Equipe de Qualidade"
+        ]
+      },
+      auditoriaQualidade: {
+        team: "Equipe de Qualidade",
+        badgeClass: "bg-amber-100 text-amber-800",
+        barColor: "#ca8a04",
+        title: "Verificação da Equipe de Qualidade",
+        desc: "A Qualidade faz a prova dos nove técnica e pedagógica. Se identificar qualquer inconformidade, Interações Digitais realiza o conserto. Se tudo estiver correto, o capítulo é aprovado para cadastro.",
+        deliverables: [
+          "Checklist rigoroso de qualidade concluído",
+          "Roteamento de ajustes para Interações Digitais (se houver erros)",
+          "Aprovação formal para a fila de cadastro"
+        ]
+      },
+      filaCadastro: {
+        team: "Engenharia & Qualidade",
+        badgeClass: "bg-slate-100 text-slate-800",
+        barColor: "#475569",
+        title: "Aguardando Cadastro em Massa",
+        desc: "Capítulos individuais aprovados entram na fila estruturada do sistema para aguardar o fechamento do lote da coleção ou livro completo.",
+        deliverables: [
+          "Registro no banco de dados como 'Aprovado para Carga'",
+          "Pacote de capítulos fechado para publicação"
+        ]
+      },
+      cadastroMassa: {
+        team: "Engenharia",
+        badgeClass: "bg-slate-800 text-emerald-400",
+        barColor: "#10b981",
+        title: "Cadastro em Massa pela Engenharia",
+        desc: "A Engenharia de Sistemas executa os scripts e processos de publicação em lote, propagando o livro digital para a base de dados ativa de professores e estudantes.",
+        deliverables: [
+          "Disponibilização oficial na plataforma Geekie One",
+          "Livro digital ativo, sincronizado e consumível em escala"
+        ]
+      }
+    };
+
+    // Função de abertura do Modal
+    function openModal(stepKey) {
+      const data = stepsData[stepKey];
+      if (!data) return;
+
+      document.getElementById('modalTitle').textContent = data.title;
+      document.getElementById('modalDesc').textContent = data.desc;
+      document.getElementById('modalTeamBadge').textContent = data.team;
+      document.getElementById('modalTeamBadge').className = `text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${data.badgeClass}`;
+      document.getElementById('modalColorBar').style.backgroundColor = data.barColor;
+
+      const delList = document.getElementById('modalDeliverables');
+      delList.innerHTML = '';
+      data.deliverables.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        delList.appendChild(li);
+      });
+
+      const modal = document.getElementById('detailModal');
+      modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    // Fechar ao clicar fora
+    document.getElementById('detailModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('detailModal')) {
+        closeModal();
+      }
+    });
+
+    // Filtros de Tipo de Livro: Atualização vs Reformulado
+    function setBookMode(mode) {
+      const btnAll = document.getElementById('btnAll');
+      const btnAtualizacao = document.getElementById('btnAtualizacao');
+      const btnReformulado = document.getElementById('btnReformulado');
+      const branchAt = document.getElementById('branchAtualizacao');
+      const branchRef = document.getElementById('branchReformulado');
+      const bannerTitle = document.getElementById('bannerTitle');
+      const bannerDesc = document.getElementById('bannerDesc');
+
+      // Reseta estilos de botões
+      [btnAll, btnAtualizacao, btnReformulado].forEach(b => {
+        b.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all text-xs font-semibold flex items-center gap-1.5";
+      });
+
+      if (mode === 'all') {
+        btnAll.className = "px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition-all text-xs font-semibold";
+        branchAt.classList.remove('opacity-25', 'grayscale');
+        branchRef.classList.remove('opacity-25', 'grayscale');
+        bannerTitle.textContent = "Fluxo Geral de Criação do Livro Digital";
+        bannerDesc.textContent = "Visão panorâmica mostrando o fluxo completo e as variações de trabalho de terceiros para Atualizações e Reformulações.";
+      } else if (mode === 'atualizacao') {
+        btnAtualizacao.className = "px-3 py-1.5 rounded-lg bg-white text-emerald-800 shadow-sm transition-all text-xs font-bold flex items-center gap-1.5";
+        branchAt.classList.remove('opacity-25', 'grayscale');
+        branchRef.classList.add('opacity-25', 'grayscale');
+        bannerTitle.textContent = "Modo: Livro em Atualização";
+        bannerDesc.textContent = "No livro em atualização, o cotejo é realizado PRIMEIRO pelos terceiros (conferindo impresso vs digital anterior) antes de iniciar os inputs no CMS e Geekie One.";
+      } else if (mode === 'reformulado') {
+        btnReformulado.className = "px-3 py-1.5 rounded-lg bg-white text-violet-800 shadow-sm transition-all text-xs font-bold flex items-center gap-1.5";
+        branchRef.classList.remove('opacity-25', 'grayscale');
+        branchAt.classList.add('opacity-25', 'grayscale');
+        bannerTitle.textContent = "Modo: Livro Reformulado";
+        bannerDesc.textContent = "No livro reformulado, o novo conteúdo é totalmente inserido no Geekie One e CMS PRIMEIRO, e a etapa de cotejo entra depois para validação minuciosa pós-input.";
+      }
+    }
+
+    // Filtro por Equipe
+    function filterByTeam(team) {
+      const cards = document.querySelectorAll('.node-card');
+      const select = document.getElementById('teamFilter');
+      select.value = team;
+
+      if (team === 'all') {
+        cards.forEach(card => {
+          card.classList.remove('node-dimmed', 'node-active-highlight');
+        });
+        return;
+      }
+
+      cards.forEach(card => {
+        const cardTeam = card.getAttribute('data-team');
+        if (cardTeam === team) {
+          card.classList.remove('node-dimmed');
+          card.classList.add('node-active-highlight');
+        } else {
+          card.classList.add('node-dimmed');
+          card.classList.remove('node-active-highlight');
+        }
+      });
+    }
+
+    // Tecla ESC fecha modal
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html>
