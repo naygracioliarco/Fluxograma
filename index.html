@@ -105,7 +105,7 @@
             </div>
             <div>
               <h1 class="text-lg font-bold text-slate-900 leading-tight">Como Nasce o Livro Digital</h1>
-              <p class="text-xs text-slate-500 font-medium">Do fechamento editorial à publicação na Geekie One</p>
+              <p class="text-xs text-slate-500 font-medium">Do fechamento editorial à publicação no Geekie One</p>
             </div>
           </div>
         </div>
@@ -185,7 +185,7 @@
         <span class="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">Pré-requisito Obrigatório</span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
         <!-- Ponto de Partida -->
         <div class="node-card bg-white p-4 rounded-2xl border-2 border-slate-300 shadow-sm hover:shadow-md cursor-pointer relative"
              data-team="editorial" onclick="openModal('diagramacao')">
@@ -207,10 +207,11 @@
             <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700">Editorial</span>
             <span class="w-2 h-2 rounded-full bg-blue-500"></span>
           </div>
-          <h4 class="font-bold text-slate-900 text-sm">Docs de Questões Bônus & Extras</h4>
+          <h4 class="font-bold text-slate-900 text-sm">Docs de Questões Bônus & Atividades Extras</h4>
           <p class="text-xs text-slate-500 mt-1">Preenchimento do Google Docs com as questões complementares que existirão exclusivamente no digital.</p>
           <div class="mt-3 pt-2.5 border-t border-slate-100 text-[11px] font-semibold text-blue-600 flex items-center gap-1">
             <span>📝 Docs com gabaritos</span>
+            <span>📁 Link da pasta com imagens</span>
           </div>
         </div>
 
@@ -229,6 +230,20 @@
         </div>
 
         <!-- Tarefa 3 Editorial -->
+        <div class="node-card bg-white p-4 rounded-2xl border-l-4 border-l-brand-editorial border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer relative"
+             data-team="editorial" onclick="openModal('linksRecursosDigitais')">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700">Editorial</span>
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm">Links do Box Recursos Digitais</h4>
+          <p class="text-xs text-slate-500 mt-1">Disponibilização dos links do box de recursos digitais na planilha de controle.</p>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 text-[11px] font-semibold text-blue-600 flex items-center gap-1">
+            <span>🔗 Links na planilha</span>
+          </div>
+        </div>
+
+        <!-- Tarefa 4 Editorial -->
         <div class="node-card bg-white p-4 rounded-2xl border-l-4 border-l-brand-editorial border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer relative"
              data-team="editorial" onclick="openModal('briefingAudios')">
           <div class="flex items-center justify-between mb-2">
@@ -352,7 +367,7 @@
           </div>
           <h4 class="font-bold text-slate-900 text-sm">Auditoria da Planilha (Gate para Terceiros)</h4>
           <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-            Os analistas checam se todos os pré-requisitos estão 100% preenchidos na planilha: links de Publitas, Kahoots, áudios validados, docs de bônus e link das imagens.
+            Os analistas checam se todos os pré-requisitos estão 100% preenchidos na planilha: links de Publitas, recursos digitais, Kahoots, áudios validados, docs de bônus e atividades extras e link das imagens.
           </p>
           <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span class="font-mono text-[11px] text-emerald-600 font-semibold">✓ Liberação p/ Terceiros</span>
@@ -416,7 +431,7 @@
               </div>
               <h5 class="font-bold text-slate-900 text-xs sm:text-sm mt-1">Inserção de Conteúdo & Links Finais</h5>
               <p class="text-xs text-slate-600 mt-1">
-                Outros terceiros executam o input na plataforma e disponibilizam o <strong>Link do Capítulo na Geekie One</strong> e o <strong>Link do CMS</strong>.
+                Outros terceiros executam o input na plataforma e disponibilizam o <strong>Link do Capítulo no Geekie One</strong> e o <strong>Link do CMS</strong>.
               </p>
             </div>
           </div>
@@ -458,7 +473,23 @@
               </div>
               <h5 class="font-bold text-slate-900 text-xs sm:text-sm mt-1">Conferência Minuciosa</h5>
               <p class="text-xs text-slate-600 mt-1">
-                Os terceiros verificam se tudo o que foi inputado reflete perfeitamente o novo livro impresso diagramado.
+                Os terceiros de cotejo conferem o input inicial e anotam o que faltou ou está incorreto em relação ao impresso diagramado.
+              </p>
+            </div>
+
+            <!-- Conector seta -->
+            <div class="text-center text-slate-400 text-xs font-bold">↓ em seguida</div>
+
+            <!-- Passo 3: Ajuste pós-cotejo -->
+            <div class="node-card bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm cursor-pointer"
+                 data-team="terceiros" onclick="openModal('ajustePosCotejo')">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-rose-700 uppercase">3. Ajuste Pós Cotejo (Terceiros)</span>
+                <span class="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">Se houver apontamentos</span>
+              </div>
+              <h5 class="font-bold text-slate-900 text-xs sm:text-sm mt-1">Ajuste Pós Cotejo</h5>
+              <p class="text-xs text-slate-600 mt-1">
+                O terceiro responsável pelo input corrige o que foi apontado no cotejo, até o capítulo ficar alinhado ao impresso.
               </p>
             </div>
           </div>
@@ -506,7 +537,7 @@
           </div>
         </div>
 
-        <!-- Equipe de Qualidade com Decisão de Ajuste -->
+        <!-- Equipe de Controle de Qualidade com Decisão de Ajuste -->
         <div class="node-card bg-white p-4 rounded-2xl border-l-4 border-l-brand-qualidade border-y border-r border-slate-200 shadow-sm hover:shadow-md cursor-pointer relative"
              data-team="qualidade" onclick="openModal('auditoriaQualidade')">
           <div class="flex items-center justify-between mb-2">
@@ -568,7 +599,7 @@
           <h3 class="font-bold text-slate-900 text-base">Matriz de Entregáveis & Artefatos Digitais</h3>
           <p class="text-xs text-slate-500">Resumo centralizado dos links, documentos e artefatos de cada área</p>
         </div>
-        <span class="text-xs font-mono text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">Total de 8 Ativos Chave</span>
+        <span class="text-xs font-mono text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">Total de 9 Ativos Chave</span>
       </div>
 
       <div class="overflow-x-auto">
@@ -584,7 +615,7 @@
           <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
             <tr>
               <td class="py-2.5 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-600"></span> Editorial</td>
-              <td>Questões Bônus e Extras</td>
+              <td>Questões Bônus e Atividades Extras</td>
               <td class="font-mono text-[11px]">Google Docs</td>
               <td>Enriquecimento pedagógico do digital</td>
             </tr>
@@ -593,6 +624,12 @@
               <td>Links Publitas (Aluno e Docente)</td>
               <td class="font-mono text-[11px]">Planilha Central</td>
               <td>Visualização espelho do livro impresso</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-600"></span> Editorial</td>
+              <td>Links do Box Recursos Digitais</td>
+              <td class="font-mono text-[11px]">Planilha Central</td>
+              <td>Insumo para cadastro dos recursos no digital</td>
             </tr>
             <tr>
               <td class="py-2.5 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-600"></span> Audiovisual</td>
@@ -700,11 +737,11 @@
         team: "Editorial",
         badgeClass: "bg-blue-100 text-blue-800",
         barColor: "#2563eb",
-        title: "Docs de Questões Bônus e Extras",
-        desc: "O time editorial organiza no Google Docs as questões que farão parte do ecossistema digital além do impresso, incluindo gabarito comentado, resoluções passo a passo e categorização correta.",
+        title: "Docs de Questões Bônus e Atividades Extras",
+        desc: "O time editorial organiza no Google Docs as questões que farão parte do ecossistema digital além do impresso, incluindo gabarito comentado, resoluções passo a passo e categorização correta, e o links da pasta das imagens já com acesso liberado.",
         deliverables: [
           "Documento Google Docs preenchido e formatado",
-          "Questões bônus catalogadas com gabarito",
+          "Questões bônus e atividades extras catalogadas com gabarito",
           "Link do Docs compartilhado e inserido na planilha mestra"
         ]
       },
@@ -718,6 +755,18 @@
           "Link do Publitas do Aluno",
           "Link do Publitas do Docente (com manuais e resoluções)",
           "Checagem de permissões públicas/restritas dos links"
+        ]
+      },
+      linksRecursosDigitais: {
+        team: "Editorial",
+        badgeClass: "bg-blue-100 text-blue-800",
+        barColor: "#2563eb",
+        title: "Links do Box Recursos Digitais",
+        desc: "O editorial identifica os recursos digitais presentes no box do capítulo e disponibiliza os links correspondentes na planilha de controle, para que as próximas equipes possam cadastrá-los no livro digital.",
+        deliverables: [
+          "Links do box de recursos digitais preenchidos na planilha de controle",
+          "Conferência de acesso e permissões dos links",
+          "Insumo liberado para a conferência da planilha e o cadastro no digital"
         ]
       },
       briefingAudios: {
@@ -773,7 +822,7 @@
         badgeClass: "bg-emerald-100 text-emerald-800",
         barColor: "#059669",
         title: "Análise do PDF do Aluno & Anotações",
-        desc: "O NDE estuda detalhadamente o PDF do aluno para identificar elementos que não funcionam 'cruamente' na tela, marcando imagens que necessitam de intervenção do time de designers e questões que precisam ser adaptadas ao formato digital interativo.",
+        desc: "O NDE estuda detalhadamente o PDF do aluno para identificar as adaptações necessárias para que as atividades do impresso possam ser realizadas na plataforma, marcando imagens que necessitam de intervenção do time de designers e questões que precisam ser adaptadas ao formato digital interativo.",
         deliverables: [
           "PDF com marcações claras de intervenção em imagens",
           "Relação de questões com adaptações recomendadas (alteração de texto, múltipla escolha etc.)",
@@ -797,7 +846,7 @@
         badgeClass: "bg-orange-100 text-orange-800",
         barColor: "#ea580c",
         title: "Conferência da Planilha (Gate para Terceiros)",
-        desc: "Os analistas de interações digitais atuam como ponto focal de qualidade antes da terceirização: garantem que a planilha contém todos os links (Publitas, Kahoots, áudios, Docs de bônus e imagens tratadas).",
+        desc: "Os analistas de interações digitais atuam como ponto focal de qualidade antes da terceirização: garantem que a planilha contém todos os links (Publitas, Links com os recursos digitais, PDF's com adaptações, Kahoots, áudios, Docs de bônus e atividades extras e imagens tratadas).",
         deliverables: [
           "Checklist de 100% dos insumos checado",
           "Sinal verde formal para os fornecedores terceiros iniciarem",
@@ -820,10 +869,10 @@
         team: "Terceiros (Input)",
         badgeClass: "bg-rose-100 text-rose-800",
         barColor: "#dc2626",
-        title: "Input de Conteúdo na Geekie One & CMS",
-        desc: "Os terceiros cadastram textos, fórmulas, questões bônus, áudios, imagens e Kahoots no CMS e na plataforma Geekie One.",
+        title: "Input de Conteúdo no Geekie One & CMS",
+        desc: "Os terceiros cadastram textos, fórmulas, questões bônus, atividades extras, recursos digitais, áudios, imagens e Kahoots no CMS e na plataforma Geekie One.",
         deliverables: [
-          "Link do Capítulo montado na Geekie One",
+          "Link do Capítulo montado no Geekie One",
           "Link correspondente no CMS de produção",
           "Planilha preenchida com os dois links gerados"
         ]
@@ -833,11 +882,21 @@
         badgeClass: "bg-rose-100 text-rose-800",
         barColor: "#dc2626",
         title: "Cotejo Pós-Input (No caso de Livro Reformulado)",
-        desc: "Para obras reformuladas totalmente, o input é feito primeiro. Em seguida, os terceiros de cotejo comparam o capítulo pronto no Geekie One com o impresso diagramado para garantir fidelidade 100%.",
+        desc: "Para obras reformuladas totalmente, o input é feito primeiro. Em seguida, os terceiros de cotejo comparam o capítulo no Geekie One com o impresso diagramado e anotam o que faltou ou está incorreto, para que o time de input faça os ajustes.",
         deliverables: [
           "Validação de texto, ordem de exercícios e mídias",
-          "Apontamentos de pequenos desvios ajustados imediatamente",
-          "Emissão do carimbo de cotejo concluído"
+          "Anotação do que faltou ou está incorreto no input inicial",
+          "Encaminhamento dos apontamentos para o terceiro de input"
+        ]
+      },
+      ajustePosCotejo: {
+        team: "Terceiros (Input)",
+        badgeClass: "bg-rose-100 text-rose-800",
+        barColor: "#dc2626",
+        title: "Ajuste Pós Cotejo",
+        desc: "Quando o cotejo aponta faltas ou incorreções, o terceiro que fez o input inicial faz as correções necessárias.",
+        deliverables: [
+          "Correção dos apontamentos no CMS"
         ]
       },
       validacaoInteracoes: {
@@ -849,14 +908,14 @@
         deliverables: [
           "Auditoria dos componentes interativos",
           "Verificação da integridade das imagens e links",
-          "Envio do capítulo para a esteira da Equipe de Qualidade"
+          "Envio do capítulo para a esteira da Equipe de Controle de Qualidade"
         ]
       },
       auditoriaQualidade: {
-        team: "Equipe de Qualidade",
+        team: "Equipe de Controle de Qualidade",
         badgeClass: "bg-amber-100 text-amber-800",
         barColor: "#ca8a04",
-        title: "Verificação da Equipe de Qualidade",
+        title: "Verificação da Equipe de Controle de Qualidade",
         desc: "A Qualidade faz a validação técnica e pedagógica. Se identificar qualquer inconformidade, Interações Digitais realiza o conserto. Se tudo estiver correto, o capítulo é aprovado para cadastro.",
         deliverables: [
           "Checklist rigoroso de qualidade concluído",
